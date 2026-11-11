@@ -1,0 +1,17 @@
+# Python >=3.11 intended; verified interpreter and resolved versions belong in run manifests.
+# Existing provider auto-discovery imports Google and DeepSeek even for OpenAI/Anthropic.
+pydantic==2.10.4
+pandas==2.2.3
+openai==1.58.1
+anthropic==0.42.0
+tiktoken==0.8.0
+tenacity==8.5.0
+google-generativeai>=0.8.3
+PyYAML
+rich
+docstring-parser
+email-validator
+typing-extensions
+psutil
+pytest==8.3.4
+pytest-asyncio==0.25.0

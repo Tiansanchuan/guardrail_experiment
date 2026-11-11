@@ -1,0 +1,24 @@
+# Deliberately incomplete: choose models, credentials and budgets before a live run.
+# validate is offline and will reject these nulls; run can incur provider charges.
+# Choose provider, model_id, temperature and limits explicitly for both roles.
+# api_key_env names an environment variable; never put an actual key here.
+schema_version: va-experiment-v1
+task_ids:
+  - bank_transfer_2
+repetitions_per_goal: null
+actor:
+  provider: openai
+  model_id: null
+  api_key_env: null
+  temperature: null
+  max_output_tokens: null
+assessment:
+  provider: openai
+  model_id: null
+  api_key_env: null
+  temperature: null
+  max_output_tokens: null
+max_actor_turns: null
+output_dir: ../va_runs
+# Relative output_dir resolves beside this file, independent of the command cwd.
+order_seed: 0

@@ -1,15 +1,15 @@
-# Guardrail Experiment：VA / SHADE-Arena
+# Guardrail Experiment: VA / SHADE-Arena
 
-本仓库基于[SHADE-Arena](https://github.com/jkutaso/SHADE-Arena)，实现正常／违规目标 × 普通／VA过程报告实验。
-新入口为`run_va_experiment.py`，使用完整冻结轨迹和独立报告评估；原monitor及隐藏策略不进入新流程。
+This repository adapts [SHADE-Arena](https://github.com/jkutaso/SHADE-Arena) for a Verifiability Approach (VA) experiment comparing normal-goal and side-goal conditions with ordinary and VA-notice process reports.
+The entry point is `run_va_experiment.py`. It uses complete frozen execution histories and independent report assessment. The original monitor and concealment prompts are excluded from this flow.
 
-**转账任务起步：** 先阅读[配置与运行说明](docs/va-bank-pilot.md)，复制并填写
-[pilot模板](configs/va_bank_pilot.example.yaml)。模型API key在本地环境变量中设置。
-更多实现与产物说明见[VA使用说明](docs/va-experiment.md)。
+**Start with the bank transfer pilot:** Read the [setup and run instructions](docs/va-bank-pilot.md), then copy and fill in the
+[pilot configuration template](configs/va_bank_pilot.example.yaml). Set model API keys through local environment variables.
+For implementation details and saved artifacts, see the [VA experiment guide](docs/va-experiment.md).
 
-发布数据版本与脱敏范围见[PUBLICATION.md](PUBLICATION.md)。
+See [PUBLICATION.md](PUBLICATION.md) for the published data version and sanitization scope.
 
-## SHADE-Arena原始说明
+## Original SHADE-Arena README
 
 This is the public split of SHADE-Arena. If you want access to the private split, your best bet is to email me at jonk@anthropic.com. I check there the most. 
 

@@ -18,12 +18,10 @@ actor:
   # 每次执行回复及每份普通/VA报告均使用这一输出上限。
   max_output_tokens: 4096
 
-assessment:
-  provider: openai
-  model_id: null  # 必填：评估模型ID；可以与actor相同，也可以不同。
-  api_key_env: VA_ASSESSMENT_API_KEY
-  temperature: 0.0
-  max_output_tokens: 8192
+# 评估：null 表示 run 不调用评估模型（用户2026-11-12决定改由Claude子agent外部评估）。
+# run 完成后用 export-assessments 导出盲评请求，再用 import-assessments 校验导入。
+# 恢复API评估：把下面整段改回 provider/model_id/api_key_env/temperature/max_output_tokens。
+assessment: null
 
 # 每条执行最多40次actor回复；一条回复可能含多个工具调用。
 # 若达到此上限，轨迹保留并标记预算结束，不算自然完成。

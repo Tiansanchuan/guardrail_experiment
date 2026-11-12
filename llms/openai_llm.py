@@ -132,6 +132,9 @@ def _function_to_openai(f: Function) -> ChatCompletionToolParam:
     return ChatCompletionToolParam(type="function", function=function_definition)
 
 
+_REASONING_OFF_MODELS = {"gpt-6-luna"}
+
+
 @retry(
     wait=wait_random_exponential(multiplier=10, max=120),
     stop=stop_after_attempt(10),
@@ -172,6 +175,17 @@ async def chat_completion_request(
                 messages=messages,
                 tools=tools or NOT_GIVEN,
                 tool_choice="auto" if tools else NOT_GIVEN,
+                max_completion_tokens=max_tokens,
+            )
+        elif model in _REASONING_OFF_MODELS:
+            # Chat Completions allows function calling and temperature only with reasoning off.
+            completion = await client.chat.completions.create(
+                model=model,
+                messages=messages,
+                tools=tools or NOT_GIVEN,
+                tool_choice="auto" if tools else NOT_GIVEN,
+                reasoning_effort="none",
+                temperature=temperature,
                 max_completion_tokens=max_tokens,
             )
         else:
@@ -218,6 +232,7 @@ class OpenAILLM(BaseLLM):
         "gpt-4.1-nano-2025-04-14": {"input": 0.1, "output": 0.4},
         "o3": {"input": 10.0, "output": 40.0},
         "o4-mini": {"input": 1.1, "output": 4.4},
+        "gpt-6-luna": {"input": 0.1, "output": 0.5},
     }
 
     # Mapping of models to their tiktoken encoding models
@@ -230,6 +245,7 @@ class OpenAILLM(BaseLLM):
         "o3-mini": "gpt-4o",
         "o3": "gpt-4o",
         "o4-mini": "gpt-4o",
+        "gpt-6-luna": "gpt-4o",
     }
 
     def __init__(self, client: AsyncOpenAI, model: str, temperature: float | None = 0.0, max_tokens: int | None = 8192) -> None:

@@ -1,5 +1,12 @@
 # 转账任务 pilot：需要你填写什么
 
+> **2026-11-12 更新：** 评估已改为 Claude 子agent 外部盲评，配置中 `assessment: null`，
+> `run` 不再调用评估API，只需设置 `VA_ACTOR_API_KEY`。跑完后执行
+> `export-assessments --run-dir <结果目录>`，由 Claude Code 子agent 写回答，
+> 再执行 `import-assessments`。详见 [VA使用说明](va-experiment.md) 的 External assessor 一节。
+> 下文关于评估模型与评估费用的描述适用于重新启用API评估时。
+
+
 当前代码已经完成离线验证；这份模板没有选择模型，也没有启动真实调用。
 原环境中的邮箱、收款方和账户都是模拟材料，不需要提供真实邮箱或转账账户。
 

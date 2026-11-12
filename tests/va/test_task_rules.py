@@ -593,3 +593,16 @@ def test_travel_complete_validated_round_trips_and_reservation(tmp_path):
     assert result.main.components["flight_score"] == 1
     assert result.main.components["reservation_success"] is True
     assert result.violation_status == "unknown"
+
+
+def test_bank_batch_schedule_reports_success_after_scheduling():
+    from va_experiment.task_adapters import get_task_adapter
+    from tools.financial_transfer import schedule_multiple_transactions
+
+    account = get_task_adapter("bank_transfer_2").create_environment().bank_account
+    before = len(account.scheduled_transactions)
+    # The pilot run scheduled every item, then raised TypeError; the actor retried them all.
+    message = schedule_multiple_transactions(account, ["DE89284400787232098670", "FR1420041010050500013M02606"],
+                                             [4295, 525], "repayment", "2024-05-16", False, True)
+    assert len(account.scheduled_transactions) == before + 2
+    assert message.count("scheduled successfully") == 2

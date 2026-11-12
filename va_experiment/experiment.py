@@ -26,9 +26,15 @@ from va_experiment.task_adapters import get_task_adapter
 
 def validate_config(config: RunConfig) -> dict:
     """Resolve every task before credentials, client construction or output writes."""
+    from va_experiment.semantic_assessment import SemanticAdapter
     if len(set(config.task_ids)) != len(config.task_ids):
         raise ValueError("Duplicate task IDs are not allowed")
-    return {task_id: get_task_adapter(task_id) for task_id in config.task_ids}
+    adapters = {task_id: get_task_adapter(task_id) for task_id in config.task_ids}
+    if config.assessment is None:
+        semantic = [task_id for task_id, adapter in adapters.items() if isinstance(adapter, SemanticAdapter)]
+        if semantic:
+            raise ValueError(f"Semantic task scoring requires an assessment model: {semantic}")
+    return adapters
 
 
 def _write_new(path: Path, value) -> None:
@@ -104,13 +110,16 @@ async def run_experiment(config: RunConfig, clients: dict[str, ModelClient] | No
     clients = dict(clients or {})
     if set(clients) - {"actor", "assessment"}:
         raise ValueError("Injected client roles must be actor and assessment")
-    for role in ("actor", "assessment"):
+    roles = ("actor", "assessment") if config.assessment is not None else ("actor",)
+    if set(clients) - set(roles):
+        raise ValueError("Assessment client injected although assessment is disabled")
+    for role in roles:
         _check_model(getattr(config, role), injected=role in clients)
         if role in clients and not callable(getattr(clients[role], "complete", None)):
             raise ValueError(f"Invalid injected {role} client")
     references = {task_id: adapter.reference_manifest() for task_id, adapter in adapters.items()}
     provenance = _provenance()
-    for role in ("actor", "assessment"):
+    for role in roles:
         if role not in clients:
             clients[role] = model_client.create_model_client(getattr(config, role))
     output = _fresh_directory(config.output_dir, "run")
@@ -118,7 +127,8 @@ async def run_experiment(config: RunConfig, clients: dict[str, ModelClient] | No
         "assessment_rubric_version": REPORT_ASSESSMENT_VERSION, "task_semantic_rubric_version": VERSION,
         "report_protocol_version": PROTOCOL_VERSION,
         "planned_executions": 2 * len(adapters) * config.repetitions_per_goal,
-        "automatic_execution_retries": 0, **provenance}
+        "automatic_execution_retries": 0, "assessment_enabled": config.assessment is not None,
+        **provenance}
     _write_new(output / "manifest.json", manifest)
     for task_id, reference in references.items():
         _write_new(output / "task_manifests" / f"{task_id}.json", reference)
@@ -160,11 +170,12 @@ async def run_experiment(config: RunConfig, clients: dict[str, ModelClient] | No
                         store.append("private_report_mapping", {"report_id": report.report_id,
                             "execution_id": execution.execution_id, "blind_id": blind_id})
                         jobs.append((report, evidence))
-        random.Random(config.order_seed).shuffle(jobs)
-        store.append("assessment_schedule", {"report_ids": [r.report_id for r, _ in jobs],
-                                            "order_seed": config.order_seed})
-        for report, evidence in jobs:
-            await assess_report(report, evidence, clients["assessment"], store)
+        if config.assessment is not None:
+            random.Random(config.order_seed).shuffle(jobs)
+            store.append("assessment_schedule", {"report_ids": [r.report_id for r, _ in jobs],
+                                                "order_seed": config.order_seed})
+            for report, evidence in jobs:
+                await assess_report(report, evidence, clients["assessment"], store)
     except BaseException as exc:
         store.append("run_interrupted", {"type": type(exc).__name__})
         summarize_run(output)
@@ -223,22 +234,8 @@ async def assess_existing(run_dir: Path, assessment_config: ModelConfig, *, rubr
     run_dir = Path(run_dir).resolve()
     original_manifest = _read(run_dir / "manifest.json")
     source = Path(original_manifest.get("source_run_dir", run_dir))
-    _, executions, results, reports = _source_records(source)
-    execution_by_id = {record.execution_id: record for record in executions}
-    result_by_id = {record.execution_id: record for record in results}
     # Load every immutable bundle before model construction; no live task sources.
-    jobs = []
-    for report in reports:
-        evidence = EvidenceBundle.model_validate(_read(source / "evidence" / f"{report.report_id}.json"))
-        association = _read(source / "evidence_links" / f"{report.report_id}.json")
-        expected = {"report_id": report.report_id, "execution_id": report.execution_id,
-            "execution_fingerprint": execution_by_id[report.execution_id].fingerprint,
-            "prefix_fingerprint": report.prefix_fingerprint, "report_fingerprint": _fingerprint(report),
-            "task_result_fingerprint": _fingerprint(result_by_id[report.execution_id]),
-            "evidence_fingerprint": _fingerprint(evidence)}
-        if association != expected:
-            raise ValueError(f"Frozen report/evidence association fingerprint mismatch: {report.report_id}")
-        jobs.append((report, evidence.model_copy(update={"blind_id": uuid4().hex})))
+    jobs = _frozen_jobs(source)
     provenance = _provenance()
     client = model_client.create_model_client(assessment_config)
     output = _fresh_directory(source.parent, f"assessment-{source.name}")
@@ -263,6 +260,108 @@ async def assess_existing(run_dir: Path, assessment_config: ModelConfig, *, rubr
     return output
 
 
+def _frozen_jobs(source: Path) -> list:
+    """Saved report/evidence pairs, integrity-checked, each with a fresh blind ID."""
+    _, executions, results, reports = _source_records(source)
+    execution_by_id = {record.execution_id: record for record in executions}
+    result_by_id = {record.execution_id: record for record in results}
+    jobs = []
+    for report in reports:
+        evidence = EvidenceBundle.model_validate(_read(source / "evidence" / f"{report.report_id}.json"))
+        association = _read(source / "evidence_links" / f"{report.report_id}.json")
+        expected = {"report_id": report.report_id, "execution_id": report.execution_id,
+            "execution_fingerprint": execution_by_id[report.execution_id].fingerprint,
+            "prefix_fingerprint": report.prefix_fingerprint, "report_fingerprint": _fingerprint(report),
+            "task_result_fingerprint": _fingerprint(result_by_id[report.execution_id]),
+            "evidence_fingerprint": _fingerprint(evidence)}
+        if association != expected:
+            raise ValueError(f"Frozen report/evidence association fingerprint mismatch: {report.report_id}")
+        jobs.append((report, evidence.model_copy(update={"blind_id": uuid4().hex})))
+    return jobs
+
+
+class _ExternalAnswer:
+    """Feeds one saved external assessor answer through the normal assessment path."""
+
+    def __init__(self, text: str, assessor: str, path: Path):
+        self.config = {"provider": "external", "model_id": assessor, "api_key_env": None,
+                       "temperature": None, "max_output_tokens": None}
+        self.text, self.path = text, path
+
+    async def complete(self, messages, runtime, *, purpose):
+        from va_experiment.models import ModelReply
+        return ModelReply(message={"role": "assistant", "content": self.text, "tool_calls": None},
+            raw_response={"external_response_file": self.path.name,
+                          "response_sha256": hashlib.sha256(self.text.encode("utf-8")).hexdigest()},
+            finish_reason="stop", usage={}, request_id="")
+
+
+def export_assessments(run_dir: Path) -> Path:
+    """Write blind requests for an external assessor; no model is called.
+
+    Each ``requests/<blind_id>/`` holds the exact system text and data envelope an API
+    assessor receives. Answers go to ``responses/<blind_id>.json``.
+    """
+    from va_experiment.assessment import REPORT_ASSESSMENT_VERSION, _hash, assessment_messages, report_text
+    run_dir = Path(run_dir).resolve()
+    source = Path(_read(run_dir / "manifest.json").get("source_run_dir", run_dir))
+    jobs = _frozen_jobs(source)
+    output = _fresh_directory(source.parent, f"external-assessment-{source.name}")
+    _write_new(output / "manifest.json", {"kind": "va_external_assessment", "source_run_dir": str(source),
+        "source_manifest_sha256": hashlib.sha256((source / "manifest.json").read_bytes()).hexdigest(),
+        "assessment_rubric_version": REPORT_ASSESSMENT_VERSION, **_provenance()})
+    store = RecordStore(output)
+    order_seed = _read(source / "manifest.json").get("config", {}).get("order_seed", 0)
+    random.Random(order_seed).shuffle(jobs)
+    store.append("assessment_schedule", {"report_ids": [r.report_id for r, _ in jobs], "order_seed": order_seed})
+    for report, evidence in jobs:
+        _write_new(output / "evidence" / f"{report.report_id}.json", evidence)
+        store.append("private_report_mapping", {"report_id": report.report_id,
+            "execution_id": report.execution_id, "blind_id": evidence.blind_id})
+        messages = assessment_messages(report_text(report), evidence)
+        folder = output / "requests" / evidence.blind_id
+        folder.mkdir(parents=True)
+        (folder / "instructions.md").write_text(messages[0]["content"], encoding="utf-8")
+        # Indented so a file-reading assessor can page through it.
+        _write_new(folder / "input.json", json.loads(messages[1]["content"]))
+        store.append("external_assessment_request", {"blind_id": evidence.blind_id,
+            "report_id": report.report_id, "request_sha256": _hash(messages)})
+    return output
+
+
+async def import_assessments(session_dir: Path, *, assessor: str) -> Path:
+    """Validate saved external answers exactly like API replies; missing answers wait."""
+    from va_experiment.assessment import _hash, assess_report, assessment_messages, report_text
+    if not assessor.strip():
+        raise ValueError("Name the external assessor for provenance")
+    session_dir = Path(session_dir).resolve()
+    manifest = _read(session_dir / "manifest.json")
+    if manifest.get("kind") != "va_external_assessment":
+        raise ValueError("Not an external assessment session")
+    _, _, _, reports = _source_records(Path(manifest["source_run_dir"]))
+    report_by_id = {report.report_id: report for report in reports}
+    store = RecordStore(session_dir)
+    rows = store.read_journal()
+    done = {row["payload"]["report_id"] for row in rows if row["kind"] == "report_assessment_record"}
+    waiting = []
+    for request in [row["payload"] for row in rows if row["kind"] == "external_assessment_request"]:
+        if request["report_id"] in done:
+            continue
+        answer = session_dir / "responses" / f"{request['blind_id']}.json"
+        if not answer.is_file():
+            waiting.append(request["blind_id"])
+            continue
+        report = report_by_id[request["report_id"]]
+        evidence = EvidenceBundle.model_validate(_read(session_dir / "evidence" / f"{report.report_id}.json"))
+        if _hash(assessment_messages(report_text(report), evidence)) != request["request_sha256"]:
+            raise ValueError(f"Exported request no longer matches frozen inputs: {request['blind_id']}")
+        await assess_report(report, evidence,
+                            _ExternalAnswer(answer.read_text(encoding="utf-8"), assessor, answer), store)
+    if waiting:
+        print(f"Awaiting {len(waiting)} answers: {', '.join(waiting)}", file=sys.stderr)
+    return summarize_run(session_dir)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Paired VA process-report experiment")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -272,6 +371,10 @@ def main(argv: list[str] | None = None) -> int:
     existing.add_argument("--run-dir", type=Path, required=True)
     existing.add_argument("--config", type=Path, required=True)
     commands.add_parser("summarize").add_argument("--run-dir", type=Path, required=True)
+    commands.add_parser("export-assessments").add_argument("--run-dir", type=Path, required=True)
+    imported = commands.add_parser("import-assessments")
+    imported.add_argument("--session-dir", type=Path, required=True)
+    imported.add_argument("--assessor", required=True)
     args = parser.parse_args(argv)
     try:
         if args.command == "validate":
@@ -282,6 +385,10 @@ def main(argv: list[str] | None = None) -> int:
             print(asyncio.run(run_experiment(load_config(args.config))))
         elif args.command == "summarize":
             print(summarize_run(args.run_dir))
+        elif args.command == "export-assessments":
+            print(export_assessments(args.run_dir))
+        elif args.command == "import-assessments":
+            print(asyncio.run(import_assessments(args.session_dir, assessor=args.assessor)))
         else:
             print(asyncio.run(assess_existing(args.run_dir, **load_assessment_config(args.config))))
     except (ValueError, OSError, yaml.YAMLError) as exc:

@@ -486,3 +486,18 @@ async def test_invalid_metadata_stays_diagnostic_and_keeps_evidence(empty_runtim
     with pytest.raises(ModelCallError) as caught:
         await LegacyModelClient(InvalidMetadataProvider(), config()).complete([], empty_runtime, purpose="report")
     assert caught.value.raw_response["provider_response"] == expected_raw
+
+
+@pytest.mark.asyncio
+async def test_gpt6_luna_tool_requests_disable_reasoning(openai_sdk, empty_runtime):
+    from va_experiment.model_client import create_model_client
+
+    _, state, _ = openai_sdk
+    client = create_model_client(config("openai", "gpt-6-luna"))
+    await client.complete([{"role": "user", "content": "report"}], empty_runtime, purpose="report")
+    request = state["requests"][0]
+    # Chat Completions accepts function calling and temperature only with reasoning off.
+    assert request["reasoning_effort"] == "none"
+    assert request["temperature"] == 0.25
+    assert request["max_completion_tokens"] == 37
+    assert "max_tokens" not in request

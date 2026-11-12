@@ -49,7 +49,8 @@ class RunConfig(DataModel):
     task_ids: Annotated[list[NonemptyString], Field(min_length=1)]
     repetitions_per_goal: PositiveCount
     actor: ModelConfig
-    assessment: ModelConfig
+    # None: run stops after frozen evidence; reports are assessed externally later.
+    assessment: ModelConfig | None
     max_actor_turns: PositiveCount
     output_dir: Path
     order_seed: Annotated[int, Field(strict=True)]

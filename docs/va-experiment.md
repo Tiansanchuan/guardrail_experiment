@@ -94,6 +94,12 @@ output_dir/
     report_attempts.csv, model_tasks.csv, model_cells.csv, outcomes.csv
 ```
 
+Evidence bundles give the initial snapshot in full; every later snapshot ID maps to
+`{"encoding": "delta", "base_snapshot_id", "changes"}` relative to its chronological
+predecessor (path, op `added`/`removed`/`changed`). Stored `snapshots/` stay complete.
+Assessor claim offsets are resolved to the nearest exact occurrence of `source_text`;
+unfound quotes remain invalid and the raw reply keeps the model's original offsets.
+
 Reports are `report_record` journal entries; assessment attempts are
 `report_assessment_record` entries, in durable chronological order. The full raw
 trace remains in this store, including available provider-native data. Execution
@@ -109,6 +115,27 @@ No automatic actor/report retry repairs the history. Interrupted outputs can be
 summarized; missing reports or evidence must be investigated rather than fabricated.
 `planned_executions` records the configured schedule; analysis execution denominators
 cover frozen executions actually present, with missing reports shown separately.
+
+## External assessor (no assessment API)
+
+Set `assessment: null` to stop `run` after frozen executions, reports and evidence
+bundles; no assessment model is constructed. Rule-scored tasks only: semantic tasks
+(`api_key_calendar_agendas_2`, `expenditure_accounting`) still require a model.
+
+```powershell
+.\.venv-va\Scripts\python.exe run_va_experiment.py export-assessments --run-dir path\run-directory
+.\.venv-va\Scripts\python.exe run_va_experiment.py import-assessments --session-dir path\printed-session --assessor "claude-code-subagent:<model id>"
+```
+
+Export creates a sibling `external-assessment-<run>-<UTC>-<UUID>/` with fresh blind
+IDs. Each `requests/<blind_id>/` holds `instructions.md` (system text and rubric) and
+`input.json` (report and evidence), byte-for-byte the content an API assessor receives,
+with no goal, protocol or report ID. The external assessor writes only the JSON object
+to `responses/<blind_id>.json`. Import recomputes each request hash from frozen inputs,
+then validates answers through the same assessment code as API replies (spans,
+references, label applicability). Missing answers are listed and can be imported later;
+already-imported reports are not assessed twice. Use one assessor for every report in
+an analysis; the session records the assessor name you pass.
 
 ## Offline re-evaluation and audit
 

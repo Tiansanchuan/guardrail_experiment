@@ -73,7 +73,7 @@ def test_accepted_unicode_spans_and_quoted_data(tmp_path, report_pair, scripted_
 
 
 @pytest.mark.parametrize("change", [
-    {"source_end": 99}, {"source_text": "different"}, {"source_start": 1},
+    {"source_text": "different"}, {"source_text": "y=5", "source_end": 99},
     {"evidence_refs": ["invented"]}, {"evidence_refs": []},
     {"evidence_refs": ["source:task.py#invented"]}, {"key_event_refs": ["invented"]},
     {"canonical_fact": ""}, {"atomic": False}, {"evidence_status": "maybe"},
@@ -85,6 +85,23 @@ def test_invalid_annotations_need_review(tmp_path, report_pair, scripted_client,
     assert record.status == "needs_review" and record.review_required
     with pytest.raises(ValueError):
         report_metrics(record, report, result())
+
+
+def test_offsets_are_resolved_from_exact_source_text(tmp_path, report_pair, scripted_client, evidence):
+    # The pilot assessor quoted report text exactly but miscounted offsets by a few characters.
+    record, report, _, _ = assess(tmp_path, report_pair, scripted_client, evidence,
+                                  coding([claim(source_start=5, source_end=12)]))
+    assert record.status == "ok"
+    assert (record.claims[0].source_start, record.claims[0].source_end) == (0, len("设置 x=4。"))
+
+
+def test_repeated_source_text_resolves_to_nearest_occurrence(tmp_path, report_pair, scripted_client, evidence):
+    text = "I set x to 4. I set x to 4."
+    first = claim(text=text[:13], source_start=1, source_end=14)
+    second = claim(text=text[:13], claim_id="c2", source_start=16, source_end=29)
+    record, _, _, _ = assess(tmp_path, report_pair, scripted_client, evidence, coding([first, second]), text)
+    assert record.status == "ok"
+    assert [(c.source_start, c.source_end) for c in record.claims] == [(0, 13), (14, 27)]
 
 
 def result(behavior="absent"):
@@ -201,8 +218,24 @@ def test_build_bundle_isolates_private_inputs(monkeypatch, tmp_path, stored_exec
     assert set(bundle.snapshots) == {s0, s1, s2}
     assert bundle.key_events[0]["key_event_id"] == "action-e1"
     assert bundle.reference_facts["source_manifest"]["source_sha256"] == {"task.py": "a" * 64}
-    bundle.snapshots[s1]["values"]["x"] = 99
-    assert store.load_snapshot(s1)["values"]["x"] == 4
+    # Only the initial state is complete; later states are changes from the preceding snapshot.
+    assert bundle.snapshots[s0] == {"values": {}}
+    assert bundle.snapshots[s1] == {"encoding": "delta", "base_snapshot_id": s0, "changes": [
+        {"path": ["values", "x"], "op": "added", "value": 4}]}
+    assert bundle.snapshots[s2]["changes"] == [
+        {"path": ["values", "x"], "op": "changed", "before": 4, "after": 5}]
+    bundle.snapshots[s0]["values"]["x"] = 99
+    assert store.load_snapshot(s0)["values"] == {}
+
+
+def test_state_delta_lists_and_removals():
+    from va_experiment.assessment import _state_delta
+    before = {"rows": [{"id": 1, "read": False}], "gone": 1}
+    after = {"rows": [{"id": 1, "read": True}, {"id": 2}]}
+    assert _state_delta(before, after) == [
+        {"path": ["rows", 0, "read"], "op": "changed", "before": False, "after": True},
+        {"path": ["rows", 1], "op": "added", "value": {"id": 2}},
+        {"path": ["gone"], "op": "removed", "before": 1}]
 
 
 def test_cancellation_is_journaled_then_reraised(tmp_path, report_pair, evidence):

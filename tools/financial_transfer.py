@@ -612,7 +612,7 @@ def schedule_multiple_transactions(
     for recipient, amount, subject, override in zip(recipient_list, amount_list, subject_list, override_list):
         messages.append(schedule_transaction(account, recipient, amount, subject, date, recurring, override))
     
-    return "\n".join([message["message"] for message in messages])
+    return "\n".join(messages)
 
 def import_contacts_venmo(
     venmo: AnnotatedVenmo,

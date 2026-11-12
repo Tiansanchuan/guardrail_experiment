@@ -96,6 +96,45 @@ def _locations(evidence: EvidenceBundle) -> tuple[set[str], dict[str, set[str]]]
     return refs, keys
 
 
+def _state_delta(before, after, path=()) -> list[dict]:
+    """Path-addressed changes; dict keys and list indexes, additions before removals."""
+    if before == after:
+        return []
+    if isinstance(before, dict) and isinstance(after, dict):
+        changes = []
+        for key in after:
+            if key in before:
+                changes += _state_delta(before[key], after[key], (*path, key))
+            else:
+                changes.append({"path": [*path, key], "op": "added", "value": deepcopy(after[key])})
+        changes += [{"path": [*path, key], "op": "removed", "before": deepcopy(before[key])}
+                    for key in before if key not in after]
+        return changes
+    if isinstance(before, list) and isinstance(after, list):
+        changes = []
+        for index in range(min(len(before), len(after))):
+            changes += _state_delta(before[index], after[index], (*path, index))
+        changes += [{"path": [*path, index], "op": "added", "value": deepcopy(after[index])}
+                    for index in range(len(before), len(after))]
+        changes += [{"path": [*path, index], "op": "removed", "before": deepcopy(before[index])}
+                    for index in range(len(after), len(before))]
+        return changes
+    return [{"path": list(path), "op": "changed", "before": deepcopy(before), "after": deepcopy(after)}]
+
+
+def _compact_snapshots(ordered_ids: list[str], store: RecordStore) -> dict[str, dict]:
+    """Full initial state, then each state as changes from its chronological predecessor.
+
+    A full environment is ~0.5 MB; one per tool transition exceeded provider limits.
+    """
+    states = {ref: store.load_snapshot(ref) for ref in ordered_ids}
+    snapshots = {ordered_ids[0]: states[ordered_ids[0]]}
+    for previous, ref in zip(ordered_ids, ordered_ids[1:]):
+        snapshots[ref] = {"encoding": "delta", "base_snapshot_id": previous,
+                          "changes": _state_delta(states[previous], states[ref])}
+    return snapshots
+
+
 def build_evidence_bundle(execution: ExecutionRecord, result: TaskResult, store: RecordStore,
                           *, blind_id: str) -> EvidenceBundle:
     """Build read-only evidence; caller supplies a random, shuffled blind ID.
@@ -113,8 +152,9 @@ def build_evidence_bundle(execution: ExecutionRecord, result: TaskResult, store:
     adapter = get_task_adapter(frozen.task_id)
     manifest = adapter.reference_manifest()
     events = [store.load_event(ref) for ref in frozen.event_ids]
-    snapshot_ids = list(dict.fromkeys([frozen.initial_snapshot_id, frozen.final_snapshot_id] +
-        [ref for event in events for ref in (event.before_snapshot_id, event.after_snapshot_id)]))
+    snapshot_ids = list(dict.fromkeys([frozen.initial_snapshot_id] +
+        [ref for event in events for ref in (event.before_snapshot_id, event.after_snapshot_id)] +
+        [frozen.final_snapshot_id]))
     key_events = [dict(key_event_id=f"action-{event.event_id}", event_id=event.event_id,
         tool_name=event.tool_name, args=deepcopy(event.args), result=deepcopy(event.result),
         error=event.error, executed=event.executed,
@@ -129,7 +169,7 @@ def build_evidence_bundle(execution: ExecutionRecord, result: TaskResult, store:
                        ("task_id", "rubric_version", "data_fingerprint", "source_sha256")}
     source_manifest["schema_version"] = frozen.manifest.get("schema_version")
     bundle = EvidenceBundle(blind_id=blind_id, normal_task=adapter.normal_task,
-        events=events, snapshots={ref: store.load_snapshot(ref) for ref in snapshot_ids},
+        events=events, snapshots=_compact_snapshots(snapshot_ids, store),
         reference_facts={"task_reference": deepcopy(manifest["reference_facts"]),
                          "source_manifest": source_manifest,
                          "behavior": {"violation_status": result.violation_status,
@@ -147,6 +187,26 @@ def build_evidence_bundle(execution: ExecutionRecord, result: TaskResult, store:
     return bundle
 
 
+def _resolve_span(raw: dict, text: str) -> dict:
+    """Locate exact quoted text; models quote reliably but miscount code-point offsets.
+
+    The nearest exact occurrence wins. Unfound quotes stay invalid. raw_reply keeps
+    the model's original offsets for audit.
+    """
+    quote, start = raw["source_text"], raw["source_start"]
+    if (not isinstance(quote, str) or not quote.strip() or type(start) is not int
+            or type(raw["source_end"]) is not int or text[start:raw["source_end"]] == quote):
+        return raw
+    hits, index = [], text.find(quote)
+    while index != -1:
+        hits.append(index)
+        index = text.find(quote, index + 1)
+    if not hits:
+        return raw
+    resolved = min(hits, key=lambda hit: abs(hit - start))
+    return {**raw, "source_start": resolved, "source_end": resolved + len(quote)}
+
+
 def _validate(data, text: str, evidence: EvidenceBundle):
     if not isinstance(data, dict) or set(data) != {"claims", *_LABELS, "review_required"}:
         raise ValueError("Invalid assessment object fields")
@@ -159,6 +219,7 @@ def _validate(data, text: str, evidence: EvidenceBundle):
             raise ValueError("Invalid claim fields")
         if raw["atomic"] is not True:
             raise ValueError("Unresolved compound proposition")
+        raw = _resolve_span(raw, text)
         claim = Claim.model_validate({key: value for key, value in raw.items()
                                       if key not in {"source_text", "atomic"}}, strict=True)
         if (not claim.claim_id.strip() or claim.claim_id in seen_ids or not claim.canonical_fact.strip()
@@ -248,17 +309,26 @@ def load_assessments(store: RecordStore, report_id: str | None = None) -> list[A
             and (report_id is None or row["payload"]["report_id"] == report_id)]
 
 
+def report_text(report: ReportRecord) -> str:
+    return (report.reply.message.get("content") or "") if report.reply else ""
+
+
+def assessment_messages(text: str, evidence: EvidenceBundle) -> list[dict]:
+    """The complete blind assessor input, shared by API and external assessors."""
+    return [{"role": "system", "content": REPORT_ASSESSMENT_SYSTEM + "\nFixed rubric:\n" +
+             json.dumps(RUBRIC, ensure_ascii=False)},
+            {"role": "user", "content": json.dumps({"report": text, "evidence": evidence.model_dump()},
+                                                   ensure_ascii=False)}]
+
+
 async def assess_report(report: ReportRecord, evidence: EvidenceBundle, client: ModelClient,
                         store: RecordStore) -> AssessmentRecord:
     """Evaluate one report once. Errors persist; cancellation persists and propagates."""
     assessment_id, raw_reply, cancellation = uuid4().hex, None, None
     attempt = sum(row["kind"] == "report_assessment_request" and row["payload"]["report_id"] == report.report_id
                   for row in store.read_journal())
-    text = (report.reply.message.get("content") or "") if report.reply else ""
-    messages = [{"role": "system", "content": REPORT_ASSESSMENT_SYSTEM + "\nFixed rubric:\n" +
-                 json.dumps(RUBRIC, ensure_ascii=False)},
-                {"role": "user", "content": json.dumps({"report": text, "evidence": evidence.model_dump()},
-                                                           ensure_ascii=False)}]
+    text = report_text(report)
+    messages = assessment_messages(text, evidence)
     store.append("report_assessment_request", {"assessment_id": assessment_id, "blind_id": evidence.blind_id,
         "report_id": report.report_id, "execution_id": report.execution_id, "attempt_index": attempt,
         "rubric_version": REPORT_ASSESSMENT_VERSION, "rubric_sha256": hashlib.sha256(RUBRIC_PATH.read_bytes()).hexdigest(),

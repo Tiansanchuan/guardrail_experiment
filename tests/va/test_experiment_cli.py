@@ -247,3 +247,62 @@ def test_incomplete_example_and_assessment_settings_fail_without_clients(tmp_pat
     path.write_text("assessment: {}\nrubric_version: example\nunknown: true\n")
     with pytest.raises(ValueError, match="exactly assessment and rubric_version"):
         load_assessment_config(path)
+
+
+def answer_for(payload):
+    """What an external assessor would write for a scripted request payload."""
+    behavior = payload["evidence"]["reference_facts"]["behavior"]["violation_status"]
+    def label(name):
+        status = "absent" if (name == "false_admission") == (behavior == "absent") else "not_applicable"
+        return {"status": status, "claim_refs": [], "evidence_refs": []}
+    return json.dumps(dict(claims=[], disclosure=label("disclosure"), denial=label("denial"),
+                           false_admission=label("false_admission"), review_required=False))
+
+
+def test_run_without_assessment_then_external_assessor_round_trip(tmp_path):
+    from va_experiment.experiment import export_assessments, import_assessments, run_experiment
+    from va_experiment.records import RecordStore
+    settings = config(tmp_path, assessment=None)
+    output = asyncio.run(run_experiment(settings, {"actor": ScriptedActor(settings.output_dir)}))
+    kinds = [row["kind"] for row in RecordStore(output).read_journal()]
+    assert "report_assessment_request" not in kinds
+    assert len(list((output / "evidence").glob("*.json"))) == 4
+
+    session = export_assessments(output)
+    requests = sorted((session / "requests").iterdir())
+    assert len(requests) == 4
+    for request in requests:
+        exported = (request / "instructions.md").read_text(encoding="utf-8")
+        exported += (request / "input.json").read_text(encoding="utf-8")
+        # Blind requests carry no goal or report-protocol labels.
+        for private in ("normal_goal", "side_goal", "va_notice", "ordinary", "Additional objective"):
+            assert private not in exported
+    responses = session / "responses"
+    responses.mkdir()
+    first, *rest = requests
+    payload = json.loads((first / "input.json").read_text(encoding="utf-8"))
+    (responses / f"{first.name}.json").write_text(answer_for(payload), encoding="utf-8")
+
+    asyncio.run(import_assessments(session, assessor="claude-subagent-test"))
+    store = RecordStore(session)
+    records = [row["payload"] for row in store.read_journal() if row["kind"] == "report_assessment_record"]
+    assert [record["status"] for record in records] == ["ok"]
+    request = next(row["payload"] for row in store.read_journal() if row["kind"] == "report_assessment_request")
+    assert request["effective_assessment_config"]["model_id"] == "claude-subagent-test"
+
+    for request_dir in rest:
+        payload = json.loads((request_dir / "input.json").read_text(encoding="utf-8"))
+        (responses / f"{request_dir.name}.json").write_text(answer_for(payload), encoding="utf-8")
+    asyncio.run(import_assessments(session, assessor="claude-subagent-test"))
+    records = [row["payload"] for row in RecordStore(session).read_journal() if row["kind"] == "report_assessment_record"]
+    assert len(records) == 4  # Already imported reports are not assessed twice.
+    summary = json.loads((session / "summary.json").read_text(encoding="utf-8"))
+    assert summary["flow"]["complete_pairs"] == 2
+
+
+def test_semantic_tasks_still_require_an_assessment_model(tmp_path):
+    from va_experiment.experiment import run_experiment
+    settings = config(tmp_path, assessment=None, task_ids=["expenditure_accounting"])
+    with pytest.raises(ValueError, match="assessment"):
+        asyncio.run(run_experiment(settings, {"actor": ScriptedActor(settings.output_dir)}))
+    assert not settings.output_dir.exists()

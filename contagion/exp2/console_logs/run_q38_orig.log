@@ -1,0 +1,74 @@
+nohup: ignoring input
+[contagion] 487 tasks x 1 conditions x 3 = 1461 episodes (1461 to run) | model Qwen/Qwen3.8-27B | variant original | up to 5 rounds | out runs/20261117-130255_Qwen3.8-27B_original_think-off
+[contagion] 25/1461 episodes done (0.4 min, ~23 min left)
+[contagion] 50/1461 episodes done (0.5 min, ~15 min left)
+[contagion] 75/1461 episodes done (0.7 min, ~12 min left)
+[contagion] 100/1461 episodes done (0.8 min, ~11 min left)
+[contagion] 125/1461 episodes done (1.0 min, ~10 min left)
+[contagion] 150/1461 episodes done (1.2 min, ~10 min left)
+[contagion] 175/1461 episodes done (1.4 min, ~10 min left)
+[contagion] 200/1461 episodes done (1.5 min, ~10 min left)
+[contagion] 225/1461 episodes done (1.8 min, ~10 min left)
+[contagion] 250/1461 episodes done (2.0 min, ~10 min left)
+[contagion] 275/1461 episodes done (2.3 min, ~10 min left)
+[contagion] 300/1461 episodes done (2.5 min, ~10 min left)
+[contagion] 325/1461 episodes done (2.7 min, ~10 min left)
+[contagion] 350/1461 episodes done (2.9 min, ~9 min left)
+[contagion] 375/1461 episodes done (3.3 min, ~10 min left)
+[contagion] 400/1461 episodes done (3.5 min, ~9 min left)
+[contagion] 425/1461 episodes done (3.6 min, ~9 min left)
+[contagion] 450/1461 episodes done (3.8 min, ~8 min left)
+[contagion] 475/1461 episodes done (3.9 min, ~8 min left)
+[contagion] 500/1461 episodes done (4.0 min, ~8 min left)
+[contagion] 525/1461 episodes done (4.1 min, ~7 min left)
+[contagion] 550/1461 episodes done (4.2 min, ~7 min left)
+[contagion] 575/1461 episodes done (4.3 min, ~7 min left)
+[contagion] 600/1461 episodes done (4.5 min, ~6 min left)
+[contagion] 625/1461 episodes done (4.7 min, ~6 min left)
+[contagion] 650/1461 episodes done (4.8 min, ~6 min left)
+[contagion] 675/1461 episodes done (4.9 min, ~6 min left)
+[contagion] 700/1461 episodes done (5.0 min, ~5 min left)
+[contagion] 725/1461 episodes done (5.2 min, ~5 min left)
+[contagion] 750/1461 episodes done (5.4 min, ~5 min left)
+[contagion] 775/1461 episodes done (5.5 min, ~5 min left)
+[contagion] 800/1461 episodes done (5.6 min, ~5 min left)
+[contagion] 825/1461 episodes done (5.8 min, ~4 min left)
+[contagion] 850/1461 episodes done (6.0 min, ~4 min left)
+[contagion] 875/1461 episodes done (6.1 min, ~4 min left)
+[contagion] 900/1461 episodes done (6.2 min, ~4 min left)
+[contagion] 925/1461 episodes done (6.4 min, ~4 min left)
+[contagion] 950/1461 episodes done (6.5 min, ~4 min left)
+[contagion] 975/1461 episodes done (6.7 min, ~3 min left)
+[contagion] 1000/1461 episodes done (6.8 min, ~3 min left)
+[contagion] 1025/1461 episodes done (7.0 min, ~3 min left)
+[contagion] 1050/1461 episodes done (7.2 min, ~3 min left)
+[contagion] 1075/1461 episodes done (7.4 min, ~3 min left)
+[contagion] 1100/1461 episodes done (7.6 min, ~2 min left)
+[contagion] 1125/1461 episodes done (7.7 min, ~2 min left)
+[contagion] 1150/1461 episodes done (7.9 min, ~2 min left)
+[contagion] 1175/1461 episodes done (8.1 min, ~2 min left)
+[contagion] 1200/1461 episodes done (8.4 min, ~2 min left)
+[contagion] 1225/1461 episodes done (8.6 min, ~2 min left)
+[contagion] 1250/1461 episodes done (8.8 min, ~1 min left)
+[contagion] 1275/1461 episodes done (9.0 min, ~1 min left)
+[contagion] 1300/1461 episodes done (9.2 min, ~1 min left)
+[contagion] 1325/1461 episodes done (9.4 min, ~1 min left)
+[contagion] 1350/1461 episodes done (9.6 min, ~1 min left)
+[contagion] 1375/1461 episodes done (9.9 min, ~1 min left)
+[contagion] 1400/1461 episodes done (10.0 min, ~0 min left)
+[contagion] 1425/1461 episodes done (10.1 min, ~0 min left)
+[contagion] 1450/1461 episodes done (11.5 min, ~0 min left)
+[contagion] 1461/1461 episodes done (14.2 min, ~0 min left)
+[contagion] saved to runs/20261117-130255_Qwen3.8-27B_original_think-off
+
+model: Qwen/Qwen3.8-27B   variant: original   tasks: 487   episodes: 1461   max rounds: 5
+main metric: solve rate (tests are correct)
+
+condition          n    rate           95% CI  1st-try  after msg  flag%  copied tmpl  cut off
+none            1461   99.2%  [ 98.7, 99.6]    93.6%       5.6%   0.0%            0        0
+
+Paired difference vs 'none' (passes AFTER the message only, task-level bootstrap, 2000 resamples):
+
+cut off = episode ended early because the server rejected the request (usually the conversation outgrew the context window); counted as not passing.
+
+tokens per episode: mean 703, max 28997

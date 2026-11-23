@@ -1,0 +1,20 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "variant": "original",
+  "conditions": [
+    "none"
+  ],
+  "n": 5,
+  "max_rounds": 10,
+  "temperature": 0.7,
+  "max_tokens": 2048,
+  "pool": [
+    "HumanEval_2",
+    "HumanEval_22",
+    "HumanEval_90"
+  ],
+  "n_tasks": 487,
+  "flag_option": false,
+  "solvable_from": null,
+  "seed": 0
+}

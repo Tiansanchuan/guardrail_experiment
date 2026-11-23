@@ -1,0 +1,9 @@
+model: Qwen/Qwen2.5-Coder-32B-Instruct   variant: original   tasks: 487   episodes: 2415   max rounds: 10
+main metric: solve rate (tests are correct)
+
+condition          n    rate           95% CI  1st-try  after msg  flag%  copied tmpl
+none            2415   96.3%  [ 95.5, 97.0]    92.0%       4.3%   0.0%            0
+
+Paired difference vs 'none' (passes AFTER the message only, task-level bootstrap, 2000 resamples):
+
+tokens per episode: mean 2734, max 88515

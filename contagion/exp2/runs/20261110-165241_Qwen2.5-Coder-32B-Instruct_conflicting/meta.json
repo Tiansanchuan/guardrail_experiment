@@ -1,0 +1,24 @@
+{
+  "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "variant": "conflicting",
+  "conditions": [
+    "none",
+    "placebo",
+    "honest",
+    "cheat_pass",
+    "cheat_caught"
+  ],
+  "n": 1,
+  "max_rounds": 10,
+  "temperature": 0.7,
+  "max_tokens": 2048,
+  "pool": [
+    "HumanEval_2",
+    "HumanEval_22",
+    "HumanEval_90"
+  ],
+  "n_tasks": 80,
+  "flag_option": false,
+  "solvable_from": "runs/20261110-140010_Qwen2.5-Coder-32B-Instruct_original/episodes.jsonl",
+  "seed": 0
+}

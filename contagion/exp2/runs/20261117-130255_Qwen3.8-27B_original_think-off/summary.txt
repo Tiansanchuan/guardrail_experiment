@@ -1,0 +1,11 @@
+model: Qwen/Qwen3.8-27B   variant: original   tasks: 487   episodes: 1461   max rounds: 5
+main metric: solve rate (tests are correct)
+
+condition          n    rate           95% CI  1st-try  after msg  flag%  copied tmpl  cut off
+none            1461   99.2%  [ 98.7, 99.6]    93.6%       5.6%   0.0%            0        0
+
+Paired difference vs 'none' (passes AFTER the message only, task-level bootstrap, 2000 resamples):
+
+cut off = episode ended early because the server rejected the request (usually the conversation outgrew the context window); counted as not passing.
+
+tokens per episode: mean 703, max 28997

@@ -1,0 +1,229 @@
+nohup: ignoring input
+[contagion] 487 tasks x 1 conditions x 5 = 2435 episodes (2435 to run) | model Qwen/Qwen2.5-Coder-32B-Instruct | variant original | up to 10 rounds | out runs/20261110-140010_Qwen2.5-Coder-32B-Instruct_original
+[contagion] 25/2435 episodes done (0.4 min, ~36 min left)
+[contagion] 50/2435 episodes done (0.5 min, ~24 min left)
+[contagion] 75/2435 episodes done (0.7 min, ~21 min left)
+[contagion] 100/2435 episodes done (0.8 min, ~18 min left)
+[contagion] 125/2435 episodes done (0.9 min, ~17 min left)
+[contagion] 150/2435 episodes done (1.1 min, ~17 min left)
+[contagion] 175/2435 episodes done (1.2 min, ~16 min left)
+[contagion] 200/2435 episodes done (1.4 min, ~16 min left)
+[contagion] 225/2435 episodes done (1.6 min, ~15 min left)
+[contagion] 250/2435 episodes done (1.9 min, ~17 min left)
+[contagion] 275/2435 episodes done (2.1 min, ~16 min left)
+[contagion] 300/2435 episodes done (2.5 min, ~18 min left)
+[contagion] 325/2435 episodes done (2.8 min, ~18 min left)
+[contagion] 350/2435 episodes done (3.2 min, ~19 min left)
+[contagion] 375/2435 episodes done (3.6 min, ~20 min left)
+[contagion] 400/2435 episodes done (4.0 min, ~21 min left)
+[contagion] 425/2435 episodes done (4.2 min, ~20 min left)
+[contagion] 450/2435 episodes done (4.6 min, ~20 min left)
+[contagion] 475/2435 episodes done (5.1 min, ~21 min left)
+[contagion] 500/2435 episodes done (5.5 min, ~21 min left)
+[contagion] 525/2435 episodes done (6.0 min, ~22 min left)
+[contagion] 550/2435 episodes done (7.3 min, ~25 min left)
+[contagion] 575/2435 episodes done (10.1 min, ~33 min left)
+[contagion] 600/2435 episodes done (14.2 min, ~43 min left)
+[contagion] 625/2435 episodes done (19.4 min, ~56 min left)
+[contagion] 650/2435 episodes done (28.3 min, ~78 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 5s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('HumanEval_65', 'none', 2) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 5s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('HumanEval_75', 'none', 4) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 675/2435 episodes done (35.8 min, ~93 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 5s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] episode ('HumanEval_75', 'none', 0) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 17s
+[contagion] episode ('HumanEval_130', 'none', 0) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] episode ('HumanEval_75', 'none', 3) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('HumanEval_93', 'none', 0) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 700/2435 episodes done (46.7 min, ~116 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 17s
+[contagion] episode ('HumanEval_132', 'none', 4) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 725/2435 episodes done (51.4 min, ~121 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 17s
+[contagion] episode ('HumanEval_134', 'none', 3) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 750/2435 episodes done (53.9 min, ~121 min left)
+[contagion] 775/2435 episodes done (55.2 min, ~118 min left)
+[contagion] 800/2435 episodes done (56.4 min, ~115 min left)
+[contagion] 825/2435 episodes done (56.5 min, ~110 min left)
+[contagion] 850/2435 episodes done (57.4 min, ~107 min left)
+[contagion] 875/2435 episodes done (58.6 min, ~104 min left)
+[contagion] 900/2435 episodes done (58.7 min, ~100 min left)
+[contagion] 925/2435 episodes done (59.4 min, ~97 min left)
+[contagion] 950/2435 episodes done (59.9 min, ~94 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 5s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] 975/2435 episodes done (60.2 min, ~90 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 17s
+[contagion] episode ('HumanEval_145', 'none', 0) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 1000/2435 episodes done (60.7 min, ~87 min left)
+[contagion] 1025/2435 episodes done (61.9 min, ~85 min left)
+[contagion] 1050/2435 episodes done (62.2 min, ~82 min left)
+[contagion] 1075/2435 episodes done (62.7 min, ~79 min left)
+[contagion] 1100/2435 episodes done (62.9 min, ~76 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] 1125/2435 episodes done (63.1 min, ~73 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 17s
+[contagion] 1150/2435 episodes done (63.3 min, ~71 min left)
+[contagion] episode ('HumanEval_145', 'none', 4) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 1175/2435 episodes done (63.5 min, ~68 min left)
+[contagion] 1200/2435 episodes done (63.9 min, ~66 min left)
+[contagion] 1225/2435 episodes done (64.2 min, ~63 min left)
+[contagion] 1250/2435 episodes done (64.8 min, ~61 min left)
+[contagion] 1275/2435 episodes done (65.9 min, ~60 min left)
+[contagion] 1300/2435 episodes done (69.1 min, ~60 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('HumanEval_163', 'none', 3) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 1325/2435 episodes done (72.9 min, ~61 min left)
+[contagion] 1350/2435 episodes done (76.7 min, ~62 min left)
+[contagion] 1375/2435 episodes done (81.4 min, ~63 min left)
+[contagion] 1400/2435 episodes done (87.6 min, ~65 min left)
+[contagion] 1425/2435 episodes done (95.3 min, ~68 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('MBPPplus_138', 'none', 2) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 1450/2435 episodes done (100.1 min, ~68 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('MBPPplus_235', 'none', 1) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 1475/2435 episodes done (102.2 min, ~67 min left)
+[contagion] 1500/2435 episodes done (103.7 min, ~65 min left)
+[contagion] 1525/2435 episodes done (105.5 min, ~63 min left)
+[contagion] 1550/2435 episodes done (106.0 min, ~61 min left)
+[contagion] 1575/2435 episodes done (106.2 min, ~58 min left)
+[contagion] 1600/2435 episodes done (106.5 min, ~56 min left)
+[contagion] 1625/2435 episodes done (106.7 min, ~53 min left)
+[contagion] 1650/2435 episodes done (106.8 min, ~51 min left)
+[contagion] 1675/2435 episodes done (107.0 min, ~49 min left)
+[contagion] 1700/2435 episodes done (107.2 min, ~46 min left)
+[contagion] 1725/2435 episodes done (107.6 min, ~44 min left)
+[contagion] 1750/2435 episodes done (108.2 min, ~42 min left)
+[contagion] 1775/2435 episodes done (110.3 min, ~41 min left)
+[contagion] 1800/2435 episodes done (112.5 min, ~40 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('MBPPplus_286', 'none', 1) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 1825/2435 episodes done (115.7 min, ~39 min left)
+[contagion] 1850/2435 episodes done (120.0 min, ~38 min left)
+[contagion] 1875/2435 episodes done (124.2 min, ~37 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] 1900/2435 episodes done (127.7 min, ~36 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('MBPPplus_462', 'none', 4) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 5s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('MBPPplus_462', 'none', 1) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 1925/2435 episodes done (131.7 min, ~35 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 1s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 4s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 17s
+[contagion] episode ('MBPPplus_462', 'none', 2) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 5s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 8s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('MBPPplus_462', 'none', 3) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 5s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 16s
+[contagion] episode ('MBPPplus_311', 'none', 0) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 1950/2435 episodes done (137.1 min, ~34 min left)
+[contagion] 1975/2435 episodes done (140.8 min, ~33 min left)
+[contagion] 2000/2435 episodes done (143.4 min, ~31 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 2s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 3s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 5s
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 9s
+[contagion] 2025/2435 episodes done (146.1 min, ~30 min left)
+[contagion] request error (HTTPError: HTTP Error 400: Bad Request); retry in 17s
+[contagion] episode ('MBPPplus_430', 'none', 0) failed: HTTPError: HTTP Error 400: Bad Request
+[contagion] 2050/2435 episodes done (147.2 min, ~28 min left)
+[contagion] 2075/2435 episodes done (148.7 min, ~26 min left)
+[contagion] 2100/2435 episodes done (150.4 min, ~24 min left)
+[contagion] 2125/2435 episodes done (152.1 min, ~22 min left)
+[contagion] 2150/2435 episodes done (153.2 min, ~20 min left)
+[contagion] 2175/2435 episodes done (154.3 min, ~18 min left)
+[contagion] 2200/2435 episodes done (155.3 min, ~17 min left)
+[contagion] 2225/2435 episodes done (156.4 min, ~15 min left)
+[contagion] 2250/2435 episodes done (157.6 min, ~13 min left)
+[contagion] 2275/2435 episodes done (158.8 min, ~11 min left)
+[contagion] 2300/2435 episodes done (159.6 min, ~9 min left)
+[contagion] 2325/2435 episodes done (160.6 min, ~8 min left)
+[contagion] 2350/2435 episodes done (161.0 min, ~6 min left)
+[contagion] 2375/2435 episodes done (161.3 min, ~4 min left)
+[contagion] 2400/2435 episodes done (161.7 min, ~2 min left)
+[contagion] saved to runs/20261110-140010_Qwen2.5-Coder-32B-Instruct_original
+
+model: Qwen/Qwen2.5-Coder-32B-Instruct   variant: original   tasks: 487   episodes: 2415   max rounds: 10
+main metric: solve rate (tests are correct)
+
+condition          n    rate           95% CI  1st-try  after msg  flag%  copied tmpl
+none            2415   96.3%  [ 95.5, 97.0]    92.0%       4.3%   0.0%            0
+
+Paired difference vs 'none' (passes AFTER the message only, task-level bootstrap, 2000 resamples):
+
+tokens per episode: mean 2734, max 88515

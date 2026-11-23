@@ -1,0 +1,25 @@
+{
+  "model": "Qwen/Qwen3.8-27B",
+  "variant": "oneoff",
+  "conditions": [
+    "none",
+    "placebo",
+    "honest",
+    "cheat_pass",
+    "cheat_caught"
+  ],
+  "n": 3,
+  "max_rounds": 5,
+  "temperature": 0.7,
+  "max_tokens": 2048,
+  "pool": [
+    "HumanEval_2",
+    "HumanEval_22",
+    "HumanEval_90"
+  ],
+  "n_tasks": 80,
+  "flag_option": false,
+  "solvable_from": "runs/20261117-130255_Qwen3.8-27B_original_think-off/episodes.jsonl",
+  "seed": 0,
+  "thinking": "off"
+}
